@@ -1,0 +1,15 @@
+.zone-card {
+  background-color: #ccc; /* will be overridden inline */
+  padding: 1.5rem;
+  color: #fff;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.zone-card:hover {
+  transform: scale(1.05);
+}
