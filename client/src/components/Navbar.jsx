@@ -1,11 +1,26 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-export default function Navbar() {
+const Navbar = () => {
+  const role = localStorage.getItem('role');
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/');
+  };
+
   return (
-    <nav style={{ padding: '1rem', background: '#f0f0f0' }}>
-      <Link to="/" style={{ marginRight: '1rem' }}>Home</Link>
-      <Link to="/map">Map</Link>
-      <Link to="/admin">Admin</Link>
+    <nav className="p-4 flex gap-4 border-b">
+      <Link to="/">Home</Link>
+      {role === 'admin' && <Link to="/admin/rooms">Manage Rooms</Link>}
+      {role === 'user' && <Link to="/crowd">View Crowd</Link>}
+      {!role && <>
+        <Link to="/admin/login">Admin Login</Link>
+        <Link to="/user/login">Student Login</Link>
+      </>}
+      {role && <button onClick={handleLogout}>Logout</button>}
     </nav>
   );
-}
+};
+
+export default Navbar;

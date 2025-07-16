@@ -1,40 +1,22 @@
 const express = require('express');
-const cors = require('cors');
-const app = express();
+const mongoose = require('mongoose');
+require('dotenv').config();
 
-app.use(cors());
+const app = express();
 app.use(express.json());
 
-const zones = [
-  { id: 1, name: 'Library', level: 20 },
-  { id: 2, name: 'Canteen', level: 55 },
-  { id: 3, name: 'Lab A', level: 80 },
-  { id: 4, name: 'Lecture Hall', level: 35 },
-  { id: 5, name: 'Auditorium', level: 65 },
-];
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
 
-app.post('/api/zones/update', (req, res) => {
-  console.log('📥 Incoming Request:', req.body);
+const roomRoutes = require('./routes/roomRoutes');
+app.use('/api/rooms', roomRoutes);
 
-  const { id, level } = req.body;
-  const zone = zones.find(z => z.id == Number(id));
-
-  if (!zone) {
-    console.log('❌ Zone not found for ID:', id);
-    return res.status(404).json({ message: 'Zone not found' });
-  }
-
-  zone.level = Number(level);
-  console.log('✅ Updated Zone:', zone);
-
-  res.json({ message: `Zone ${zone.name} updated to ${zone.level}%` });
-});
-
-
-app.get('/api/zones', (req, res) => {
-  res.json(zones);
-});
-
-app.listen(5000, () => {
-  console.log('✅ Backend running at http://localhost:5000');
-});
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => {
+  console.log('✅ MongoDB connected');
+  app.listen(5000, () => console.log('🚀 Server running on http://localhost:5000'));
+})
+.catch((err) => console.error('❌ MongoDB connection error:', err));
