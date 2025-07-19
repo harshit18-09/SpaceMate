@@ -5,7 +5,7 @@ require('dotenv').config();
 
 const app = express();
 
-// ✅ Enable CORS for frontend (Vite runs on 5173)
+// ✅ CORS setup for frontend
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
