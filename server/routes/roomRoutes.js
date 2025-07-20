@@ -2,70 +2,85 @@ const express = require('express');
 const router = express.Router();
 const Room = require('../models/Room');
 
-// Get all rooms
+// GET all rooms
 router.get('/', async (req, res) => {
   try {
     const rooms = await Room.find();
     res.json(rooms);
   } catch (err) {
+    console.error('Error fetching rooms:', err);
     res.status(500).json({ error: 'Failed to fetch rooms' });
   }
 });
 
-// Create new room
+// CREATE a new room
 router.post('/', async (req, res) => {
-  const { name, maxCapacity } = req.body;
+  const { building, floor, roomNumber, capacity, currentCount } = req.body;
   try {
-    const newRoom = new Room({ name, maxCapacity, currentCount: 0 });
-    await newRoom.save();
-    res.status(201).json(newRoom);
+    const newRoom = new Room({
+      building,
+      floor,
+      roomNumber,
+      capacity,
+      currentCount: currentCount || 0,
+    });
+    const savedRoom = await newRoom.save();
+    res.status(201).json(savedRoom);
   } catch (err) {
+    console.error('Room creation error:', err);
+    if (err.code === 11000) {
+      return res.status(400).json({ error: 'Room with this number already exists.' });
+    }
     res.status(500).json({ error: 'Failed to create room' });
   }
 });
 
-// PATCH currentCount (+/- delta)
-router.patch('/:id/count', async (req, res) => {
-  const { id } = req.params;
-  const { delta } = req.body;
-  try {
-    const room = await Room.findById(id);
-    if (!room) return res.status(404).json({ error: 'Room not found' });
-
-    room.currentCount = Math.max(0, room.currentCount + delta); // Prevent negative count
-    await room.save();
-    res.json(room);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update count' });
-  }
-});
-
-// PUT update name or maxCapacity
+// UPDATE a room completely
 router.put('/:id', async (req, res) => {
-  const { id } = req.params;
-  const { name, maxCapacity } = req.body;
   try {
-    const room = await Room.findById(id);
-    if (!room) return res.status(404).json({ error: 'Room not found' });
-
-    room.name = name ?? room.name;
-    room.maxCapacity = maxCapacity ?? room.maxCapacity;
-    await room.save();
-    res.json(room);
+    const updatedRoom = await Room.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    res.json(updatedRoom);
   } catch (err) {
+    console.error('Error updating room:', err);
     res.status(500).json({ error: 'Failed to update room' });
   }
 });
 
-// DELETE room
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const room = await Room.findByIdAndDelete(id);
-    if (!room) return res.status(404).json({ error: 'Room not found' });
+// 🔧 PATCH endpoint to update current crowd count
+router.patch('/:id/count', async (req, res) => {
+  const roomId = req.params.id;
+  const { delta } = req.body; // expected: { delta: number }
 
-    res.json({ message: 'Room deleted successfully' });
+  try {
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
+
+    room.currentCount += delta;
+
+    // Optional: prevent negative crowd count
+    if (room.currentCount < 0) {
+      room.currentCount = 0;
+    }
+
+    await room.save();
+    res.json(room);
   } catch (err) {
+    console.error('Error updating count:', err);
+    res.status(500).json({ error: 'Failed to update crowd count' });
+  }
+});
+
+// DELETE a room
+router.delete('/:id', async (req, res) => {
+  try {
+    await Room.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Room deleted' });
+  } catch (err) {
+    console.error('Error deleting room:', err);
     res.status(500).json({ error: 'Failed to delete room' });
   }
 });

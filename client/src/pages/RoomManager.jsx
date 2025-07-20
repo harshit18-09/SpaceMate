@@ -1,97 +1,111 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const RoomManager = () => {
   const [rooms, setRooms] = useState([]);
-  const [form, setForm] = useState({
+  const [newRoom, setNewRoom] = useState({
     building: '',
     floor: '',
     roomNumber: '',
-    capacity: ''
+    capacity: '',
   });
 
   const fetchRooms = async () => {
-    const res = await axios.get('http://localhost:5000/api/rooms/all');
-    setRooms(res.data);
-  };
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleAdd = async (e) => {
-    e.preventDefault();
-    await axios.post('http://localhost:5000/api/rooms/add', form, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    });
-    setForm({ building: '', floor: '', roomNumber: '', capacity: '' });
-    fetchRooms();
-  };
-
-  const handleDelete = async (roomNumber) => {
-    await axios.delete(`http://localhost:5000/api/rooms/delete/${roomNumber}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    });
-    fetchRooms();
+    try {
+      const res = await axios.get('http://localhost:5000/api/rooms');
+      setRooms(res.data);
+    } catch (err) {
+      console.error('Error fetching rooms:', err);
+    }
   };
 
   useEffect(() => {
     fetchRooms();
   }, []);
 
+  const handleAddRoom = async () => {
+    try {
+      const res = await axios.post('http://localhost:5000/api/rooms', newRoom);
+      setRooms([...rooms, res.data]);
+      setNewRoom({ building: '', floor: '', roomNumber: '', capacity: '' });
+      alert('Room added successfully!');
+    } catch (err) {
+      console.error('Error adding room:', err);
+      alert(err.response?.data?.error || 'Something went wrong while adding the room.');
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setNewRoom({ ...newRoom, [e.target.name]: e.target.value });
+  };
+
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Room Manager</h2>
+      <h2 className="text-2xl font-bold mb-4">Room Manager</h2>
 
-      <form onSubmit={handleAdd} className="mb-6">
-        <input name="building" value={form.building} onChange={handleChange} placeholder="Building" className="border p-2 mr-2" required />
-        <input name="floor" value={form.floor} onChange={handleChange} placeholder="Floor" className="border p-2 mr-2" required />
-        <input name="roomNumber" value={form.roomNumber} onChange={handleChange} placeholder="Room #" className="border p-2 mr-2" required />
-        <input name="capacity" value={form.capacity} onChange={handleChange} placeholder="Capacity" type="number" className="border p-2 mr-2" required />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Add Room</button>
-      </form>
+      {/* Add Room Form */}
+      <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+        <input
+          type="text"
+          name="building"
+          placeholder="Building"
+          value={newRoom.building}
+          onChange={handleInputChange}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          name="floor"
+          placeholder="Floor"
+          value={newRoom.floor}
+          onChange={handleInputChange}
+          className="border p-2 rounded"
+        />
+        <input
+          type="text"
+          name="roomNumber"
+          placeholder="Room Number"
+          value={newRoom.roomNumber}
+          onChange={handleInputChange}
+          className="border p-2 rounded"
+        />
+        <input
+          type="number"
+          name="capacity"
+          placeholder="Capacity"
+          value={newRoom.capacity}
+          onChange={handleInputChange}
+          className="border p-2 rounded"
+        />
+        <button
+          onClick={handleAddRoom}
+          className="bg-blue-600 text-white rounded px-4 py-2"
+        >
+          Add Room
+        </button>
+      </div>
 
-      <div>
-        {rooms.map((room) => (
-          <div key={room._id} className="border p-2 mb-2 flex flex-col gap-2">
-            <div>
-              <strong>{room.roomNumber}</strong> — {room.building}, {room.floor}
-              <br />
-              Capacity: {room.capacity}, Current: {room.currentCount}
-            </div>
+      {/* Existing Rooms */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {rooms.map((room) => {
+          const occupancy = room.currentCount / room.capacity;
+          let bgColor = 'bg-green-200';
+          if (occupancy >= 0.8 && occupancy <= 1) bgColor = 'bg-yellow-200';
+          if (occupancy > 1) bgColor = 'bg-red-200';
 
-            {/* ✅ Update Count Form */}
-            <form onSubmit={async (e) => {
-              e.preventDefault();
-              const count = e.target.elements[`count-${room.roomNumber}`].value;
-              await axios.put(
-                `http://localhost:5000/api/rooms/update-crowd/${room.roomNumber}`,
-                { currentCount: count },
-                {
-                  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                }
-              );
-              fetchRooms();
-            }}>
-              <input
-                type="number"
-                name={`count-${room.roomNumber}`}
-                placeholder="Update Count"
-                className="border px-2 py-1 mr-2"
-              />
-              <button type="submit" className="bg-yellow-500 text-white px-2 py-1 rounded">
-                Update Count
-              </button>
-            </form>
-
-            <button
-              onClick={() => handleDelete(room.roomNumber)}
-              className="bg-red-500 text-white px-2 py-1 rounded w-fit"
+          return (
+            <div
+              key={room._id}
+              className={`p-4 rounded shadow ${bgColor} flex flex-col gap-2`}
             >
-              Delete Room
-            </button>
-          </div>
-        ))}
+              <div><strong>{room.building}</strong> - Floor {room.floor}</div>
+              <div>Room: {room.roomNumber}</div>
+              <div>Capacity: {room.capacity}</div>
+              <div>Current Count: {room.currentCount}</div>
+              {/* Optional edit/delete buttons can go here */}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
