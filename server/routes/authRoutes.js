@@ -6,6 +6,8 @@ router.post('/login', login); // Works for both admin & user
 
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const EntryLog = require("../models/EntryLog");
+
 
 // // TEMPORARY ROUTE TO CREATE USER/ADMIN
 // router.post('/register', async (req, res) => {
