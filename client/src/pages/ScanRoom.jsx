@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 const ScanRoom = () => {
-  const { roomId } = useParams(); 
+  const { roomId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
+
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  const queryParams = new URLSearchParams(location.search);
+  const type = queryParams.get('type') || 'entry';
 
   useEffect(() => {
     const fetchRoom = async () => {
       try {
-        const res = await axios.get(`/api/rooms/${roomId}`);
+        const res = await axios.get(`${API_BASE_URL}/api/rooms/${roomId}`);
         setRoom(res.data);
       } catch (err) {
         setError('Room not found or network error.');
@@ -25,34 +31,29 @@ const ScanRoom = () => {
     fetchRoom();
   }, [roomId]);
 
-  const handleConfirmEntry = async () => {
+  const handleConfirm = async () => {
     try {
-      const userId = localStorage.getItem('userId'); 
-      const res = await axios.post('/api/entry/enter', {
-        userId,
-        roomId,
-      });
-
-      alert('Entry recorded!');
-      navigate('/dashboard'); 
+      await axios.post(`${API_BASE_URL}/api/scan/${roomId}/${type}`);
+      alert(`${type === 'exit' ? 'Exit' : 'Entry'} recorded!`);
+      navigate('/dashboard');
     } catch (err) {
-      alert(err.response?.data?.msg || 'Something went wrong');
+      alert(err.response?.data?.message || 'Something went wrong');
     }
   };
 
-  if (loading) return <div className="p-4">Loading...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div style={{color: 'red'}}>{error}</div>;
 
   return (
-    <div className="p-6 text-center">
-      <h2 className="text-xl font-bold">You're scanning for:</h2>
-      <p className="text-lg my-2">{room.name} (Capacity: {room.maxCapacity})</p>
+    <div>
+      <h2>You're scanning for:</h2>
+      <p>{room.building} - Room {room.roomNumber} (Capacity: {room.capacity})</p>
 
       <button
-        onClick={handleConfirmEntry}
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        onClick={handleConfirm}
+        style={{ backgroundColor: type === 'exit' ? 'red' : 'blue', color: 'white' }}
       >
-        Confirm Entry
+        Confirm {type === 'exit' ? 'Exit' : 'Entry'}
       </button>
     </div>
   );
