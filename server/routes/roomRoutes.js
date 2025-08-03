@@ -85,4 +85,19 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// GET a single room by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    if (!room) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
+    res.json(room);
+  } catch (err) {
+    console.error('Error fetching room:', err);
+    res.status(500).json({ error: 'Failed to fetch room' });
+  }
+});
+
+
 module.exports = router;

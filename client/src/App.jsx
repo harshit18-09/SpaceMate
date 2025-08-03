@@ -9,48 +9,29 @@ import Navbar from './components/Navbar';
 import ScanRoom from './pages/ScanRoom';
 import AdminDashboard from './components/AdminDashboard';
 
-// Import the new QR scanner page
-import QRScanPage from './pages/qrscan';
-
 function App() {
-  const [role, setRole] = useState(localStorage.getItem('role') || '');
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
     const storedRole = localStorage.getItem('role');
-    if (storedRole !== role) {
+    if (storedRole) {
       setRole(storedRole);
     }
-  }, [role]);
+  }, []);
 
   return (
     <>
-      <Navbar role={role} setRole={setRole} />
+      <Navbar role={role} />
       <Routes>
-        {/* Public Login Routes */}
         <Route path="/admin/login" element={<AdminLogin setRole={setRole} />} />
         <Route path="/user/login" element={<UserLogin setRole={setRole} />} />
-
-        {/* Protected Admin Routes */}
-        <Route
-          path="/admin/rooms"
-          element={role === 'admin' ? <RoomManager /> : <Navigate to="/admin/login" />}
-        />
-        <Route
-          path="/admin/dashboard"
-          element={role === 'admin' ? <AdminDashboard /> : <Navigate to="/admin/login" />}
-        />
-
-        {/* Protected User Route */}
-        <Route
-          path="/crowd"
-          element={role === 'user' ? <CrowdPage /> : <Navigate to="/user/login" />}
-        />
-
-        {/* QR Scan Route */}
+        <Route path="/admin/dashboard" element={role === 'admin' ? <AdminDashboard /> : <Navigate to="/admin/login" />} />
+        <Route path="/room-manager" element={role === 'admin' ? <RoomManager /> : <Navigate to="/admin/login" />} />
+        <Route path="/crowd" element={<CrowdPage />} />
         <Route path="/scan/:roomId" element={<ScanRoom />} />
 
-        {/* New QR Scanner Camera Route */}
-        <Route path="/qrscan" element={<QRScanPage />} />
+        {/* ✅ Optional fix for "/dashboard" warning */}
+        <Route path="/dashboard" element={<Navigate to="/admin/dashboard" />} />
       </Routes>
     </>
   );
