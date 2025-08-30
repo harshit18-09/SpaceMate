@@ -44,4 +44,27 @@ router.post('/:roomId/entry', async (req, res) => {
   }
 });
 
+
+// ✅ NEW: POST exit scan route
+router.post('/:roomId/exit', async (req, res) => {
+  await dbConnect();
+  const { roomId } = req.params;
+
+  try {
+    const room = await Room.findById(roomId);
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found' });
+    }
+
+    room.currentCount = Math.max(0, room.currentCount - 1); // prevent negative
+    room.lastScanned = new Date();
+    await room.save();
+
+    res.status(200).json({ success: true, room });
+  } catch (err) {
+    console.error('Scan EXIT error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 module.exports = router;

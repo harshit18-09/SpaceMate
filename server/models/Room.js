@@ -21,6 +21,10 @@ const roomSchema = new mongoose.Schema({
   currentCount: {
     type: Number,
     default: 0
+  },
+  lastScanned: {
+    type: Date, 
+    default: null
   }
 });
 

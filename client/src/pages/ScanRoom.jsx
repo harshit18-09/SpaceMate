@@ -29,29 +29,36 @@ const ScanRoom = () => {
     };
 
     fetchRoom();
-  }, [roomId]);
+  }, [roomId, API_BASE_URL]);
 
   const handleConfirm = async () => {
     try {
       await axios.post(`${API_BASE_URL}/api/scan/${roomId}/${type}`);
       alert(`${type === 'exit' ? 'Exit' : 'Entry'} recorded!`);
-      navigate('/dashboard');
+
+      // ✅ Always send to admin dashboard (not old /dashboard)
+      navigate('/admin/dashboard');
     } catch (err) {
       alert(err.response?.data?.message || 'Something went wrong');
     }
   };
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div style={{color: 'red'}}>{error}</div>;
+  if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
   return (
     <div>
       <h2>You're scanning for:</h2>
-      <p>{room.building} - Room {room.roomNumber} (Capacity: {room.capacity})</p>
+      <p>
+        {room.building} - Room {room.roomNumber} (Capacity: {room.capacity})
+      </p>
 
       <button
         onClick={handleConfirm}
-        style={{ backgroundColor: type === 'exit' ? 'red' : 'blue', color: 'white' }}
+        style={{
+          backgroundColor: type === 'exit' ? 'red' : 'blue',
+          color: 'white',
+        }}
       >
         Confirm {type === 'exit' ? 'Exit' : 'Entry'}
       </button>

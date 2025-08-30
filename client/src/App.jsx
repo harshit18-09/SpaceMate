@@ -23,15 +23,29 @@ function App() {
     <>
       <Navbar role={role} />
       <Routes>
+        {/* 🔑 Login Routes */}
         <Route path="/admin/login" element={<AdminLogin setRole={setRole} />} />
         <Route path="/user/login" element={<UserLogin setRole={setRole} />} />
-        <Route path="/admin/dashboard" element={role === 'admin' ? <AdminDashboard /> : <Navigate to="/admin/login" />} />
-        <Route path="/room-manager" element={role === 'admin' ? <RoomManager /> : <Navigate to="/admin/login" />} />
+
+        {/* 🔑 Admin Routes */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            role === 'admin' ? <AdminDashboard /> : <Navigate to="/admin/login" />
+          }
+        />
+        <Route
+          path="/room-manager"
+          element={
+            role === 'admin' ? <RoomManager /> : <Navigate to="/admin/login" />
+          }
+        />
+
+        {/* 🔑 User Routes */}
         <Route path="/crowd" element={<CrowdPage />} />
         <Route path="/scan/:roomId" element={<ScanRoom />} />
 
-        {/* ✅ Optional fix for "/dashboard" warning */}
-        <Route path="/dashboard" element={<Navigate to="/admin/dashboard" />} />
+        {/* ❌ Old dashboard route removed */}
       </Routes>
     </>
   );
