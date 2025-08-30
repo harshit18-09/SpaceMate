@@ -1,31 +1,9 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
-const roomSchema = new mongoose.Schema({
-  building: {
-    type: String,
-    required: true
-  },
-  floor: {
-    type: String,
-    required: true
-  },
-  roomNumber: {
-    type: String,
-    required: true,
-    unique: true
-  },
-  capacity: {
-    type: Number,
-    required: true
-  },
-  currentCount: {
-    type: Number,
-    default: 0
-  },
-  lastScanned: {
-    type: Date, 
-    default: null
-  }
+const RoomSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  capacity: { type: Number, required: true },
+  currentCount: { type: Number, default: 0 },
 });
 
-module.exports = mongoose.model('Room', roomSchema);
+export default mongoose.models.Room || mongoose.model('Room', RoomSchema);

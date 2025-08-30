@@ -1,35 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
-const Navbar = ({ role, setRole }) => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.clear();
-    setRole('');
-    navigate('/');
-  };
-
+const Navbar = () => {
   return (
-    <nav className="p-4 flex gap-4 border-b">
-      <Link to="/">Home</Link>
-
-      {role === 'admin' && (
-        <>
-          <Link to="/admin/dashboard">Dashboard</Link>
-          <Link to="/admin/rooms">Manage Rooms</Link>
-        </>
-      )}
-
-      {role === 'user' && <Link to="/crowd">View Crowd</Link>}
-
-      {!role && (
-        <>
-          <Link to="/admin/login">Admin Login</Link>
-          <Link to="/user/login">Student Login</Link>
-        </>
-      )}
-
-      {role && <button onClick={handleLogout}>Logout</button>}
+    <nav style={{ padding: "10px", background: "#333", color: "white" }}>
+      <Link to="/admin/dashboard" style={{ color: "white", marginRight: "20px" }}>
+        Admin Dashboard
+      </Link>
+      <Link to="/" style={{ color: "white" }}>
+        Home
+      </Link>
     </nav>
   );
 };
