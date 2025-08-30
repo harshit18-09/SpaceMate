@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 
 import roomRoutes from "./routes/roomRoutes.js";
 import scanRoutes from "./routes/scanRoutes.js";
+import authRoutes from "./routes/authRoutes.js"; // ✅ Add this
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 // API routes
 app.use("/api/rooms", roomRoutes);
 app.use("/api/scan", scanRoutes);
+app.use("/api/auth", authRoutes); // ✅ Mount auth routes
 
 // Root route
 app.get("/", (req, res) => {
