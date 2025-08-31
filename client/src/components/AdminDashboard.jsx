@@ -7,29 +7,32 @@ function AdminDashboard() {
 
   // Fetch rooms on mount
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/rooms');
-        setRooms(response.data);
-        const initialAdjust = {};
-        response.data.forEach((room) => {
-          initialAdjust[room._id] = ''; // Start as empty string
-        });
-        setAdjustValues(initialAdjust);
-      } catch (error) {
-        console.error('Error fetching rooms:', error);
-      }
-    };
+  const fetchRooms = async () => {
+    try {
+      const response = await axios.get('http://172.25.232.196:5000/api/rooms');
+      console.log('Debug:', response.data);
+      setRooms(response.data);
 
-    fetchRooms();
-  }, []);
+      const initialAdjust = {};
+      response.data.forEach((room) => {
+        initialAdjust[room._id] = '';
+      });
+      setAdjustValues(initialAdjust);
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+    }
+  };
+
+  fetchRooms();
+}, []);
+
 
   const updateCount = async (roomId, delta) => {
     if (!roomId || isNaN(delta)) return;
 
     try {
-      const response = await axios.patch(`http://localhost:5000/api/rooms/${roomId}/count`, {
-        delta,
+      const response = await axios.patch(`http://172.25.232.196:5000/api/rooms/${roomId}/count`, {
+      delta,
       });
 
       setRooms((prev) =>

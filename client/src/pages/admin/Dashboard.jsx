@@ -1,56 +1,65 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { QRCodeSVG } from "qrcode.react";
 
-const AdminDashboard = () => {
+function AdminDashboard() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/rooms`);
+        const res = await axios.get("http://172.25.232.196:5000/api/rooms");
+        console.log("📦 Rooms fetched:", res.data);
         setRooms(res.data);
       } catch (err) {
-        setError("Error fetching rooms");
+        console.error("❌ Error fetching rooms:", err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchRooms();
-  }, [API_BASE_URL]);
-
-  if (loading) return <div>Loading rooms...</div>;
-  if (error) return <div style={{ color: "red" }}>{error}</div>;
+  }, []);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Admin Dashboard</h2>
-      <table border="1" cellPadding="10" style={{ marginTop: "20px", width: "100%" }}>
-        <thead>
-          <tr>
-            <th>Building</th>
-            <th>Room Number</th>
-            <th>Capacity</th>
-            <th>Current Count</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
+
+      {loading ? (
+        <p>Loading rooms...</p>
+      ) : rooms.length === 0 ? (
+        <>
+          <p>No rooms found.</p>
+          <pre className="text-sm text-gray-500 mt-4">
+            Debug: {JSON.stringify(rooms, null, 2)}
+          </pre>
+        </>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {rooms.map((room) => (
-            <tr key={room._id}>
-              <td>{room.building}</td>
-              <td>{room.roomNumber}</td>
-              <td>{room.capacity}</td>
-              <td>{room.currentCount}</td>
-            </tr>
+            <div
+              key={room._id}
+              className="rounded-lg p-4 shadow border"
+            >
+              <h2 className="text-xl font-semibold mb-1">
+                {room.building} - {room.roomNumber}
+              </h2>
+              <p>Capacity: {room.capacity}</p>
+              <p>Current: {room.currentCount}</p>
+
+              <div className="mt-3">
+                <h4 className="font-semibold mb-2">Scan QR to Enter</h4>
+                <QRCodeSVG
+                  value={`http://172.25.232.196:5173/scan/${room._id}`}
+                  size={128}
+                />
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      )}
     </div>
   );
-};
+}
 
 export default AdminDashboard;
