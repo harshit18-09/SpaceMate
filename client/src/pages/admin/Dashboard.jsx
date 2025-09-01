@@ -9,7 +9,7 @@ function AdminDashboard() {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await axios.get("http://172.25.232.196:5000/api/rooms");
+        const res = await axios.get('http://localhost:5000/api/rooms');
         console.log("📦 Rooms fetched:", res.data);
         setRooms(res.data);
       } catch (err) {

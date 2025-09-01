@@ -7,4 +7,5 @@ const RoomSchema = new mongoose.Schema({
   currentCount: { type: Number, default: 0 },
 });
 
-export default mongoose.models.Room || mongoose.model('Room', RoomSchema);
+const Room = mongoose.model('Room', RoomSchema);
+export default Room;

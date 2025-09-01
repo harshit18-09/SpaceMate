@@ -1,4 +1,3 @@
-// client/pages/ScanRoom.jsx
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -12,7 +11,7 @@ function ScanRoom() {
   useEffect(() => {
     const fetchRoom = async () => {
       try {
-        const res = await axios.get(`http://172.25.232.196:5000/api/rooms/${roomId}`);
+        const res = await axios.get(`http://172.25.209.204:5000/api/rooms/${roomId}`);
         setRoom(res.data);
 
         const enteredRoom = localStorage.getItem("enteredRoom");
@@ -30,7 +29,7 @@ function ScanRoom() {
 
   const handleEntry = async () => {
     try {
-      await axios.post(`http://172.25.232.196:5000/api/scan/${roomId}/entry`);
+      await axios.post(`http://172.25.209.204:5000/api/scan/${roomId}/entry`);
       localStorage.setItem("enteredRoom", roomId);
       setHasEntered(true);
       setStatus("✅ Entry recorded.");
@@ -42,7 +41,7 @@ function ScanRoom() {
 
   const handleExit = async () => {
     try {
-      await axios.post(`http://172.25.232.196:5000/api/scan/${roomId}/exit`);
+      await axios.post(`http://172.25.209.204:5000/api/scan/${roomId}/exit`);
       localStorage.removeItem("enteredRoom");
       setHasEntered(false);
       setStatus("✅ Exit recorded.");

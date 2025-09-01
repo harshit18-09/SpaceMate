@@ -6,9 +6,11 @@ const router = express.Router();
 // ✅ GET all rooms
 router.get('/', async (req, res) => {
   try {
-    const rooms = await Room.find();
+    const rooms = await Room.find({});
+    console.log("🧪 Rooms fetched:", rooms);
     res.json(rooms);
   } catch (err) {
+    console.error("❌ Error fetching rooms:", err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -32,7 +34,7 @@ router.post("/", async (req, res) => {
       building,
       roomNumber,
       capacity,
-      currentCount: 0, // ✅ Initialize count
+      currentCount: 0,
     });
     await newRoom.save();
     res.status(201).json(newRoom);
@@ -41,7 +43,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ✅ Update room count manually (optional)
+// ✅ Update room count
 router.patch("/:id/count", async (req, res) => {
   try {
     const { delta } = req.body;

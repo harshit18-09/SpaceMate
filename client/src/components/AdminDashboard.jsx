@@ -5,34 +5,32 @@ function AdminDashboard() {
   const [rooms, setRooms] = useState([]);
   const [adjustValues, setAdjustValues] = useState({});
 
-  // Fetch rooms on mount
   useEffect(() => {
-  const fetchRooms = async () => {
-    try {
-      const response = await axios.get('http://172.25.232.196:5000/api/rooms');
-      console.log('Debug:', response.data);
-      setRooms(response.data);
+    const fetchRooms = async () => {
+      try {
+        const response = await axios.get('http://172.25.209.204:5000/api/rooms');
+        console.log('Debug:', response.data);
+        setRooms(response.data);
 
-      const initialAdjust = {};
-      response.data.forEach((room) => {
-        initialAdjust[room._id] = '';
-      });
-      setAdjustValues(initialAdjust);
-    } catch (error) {
-      console.error('Error fetching rooms:', error);
-    }
-  };
+        const initialAdjust = {};
+        response.data.forEach((room) => {
+          initialAdjust[room._id] = '';
+        });
+        setAdjustValues(initialAdjust);
+      } catch (error) {
+        console.error('❌ Error fetching rooms:', error);
+      }
+    };
 
-  fetchRooms();
-}, []);
-
+    fetchRooms();
+  }, []);
 
   const updateCount = async (roomId, delta) => {
     if (!roomId || isNaN(delta)) return;
 
     try {
-      const response = await axios.patch(`http://172.25.232.196:5000/api/rooms/${roomId}/count`, {
-      delta,
+      const response = await axios.patch(`http://172.25.209.204:5000/api/rooms/${roomId}/count`, {
+        delta,
       });
 
       setRooms((prev) =>
@@ -45,7 +43,6 @@ function AdminDashboard() {
   };
 
   const handleInputChange = (roomId, value) => {
-    // Allow empty string for user to delete everything and type freely
     if (value === '') {
       setAdjustValues((prev) => ({ ...prev, [roomId]: '' }));
       return;
