@@ -1,15 +1,17 @@
-.zone-card {
-  background-color: #ccc; /* will be overridden inline */
-  padding: 1.5rem;
-  color: #fff;
-  border-radius: 12px;
-  text-align: center;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease-in-out;
+.map-container {
+  height: 80vh;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-.zone-card:hover {
-  transform: scale(1.05);
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+.marker-popup {
+  font-weight: bold;
+  color: #333;
 }

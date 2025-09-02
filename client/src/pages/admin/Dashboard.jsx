@@ -1,64 +1,36 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { QRCodeSVG } from "qrcode.react";
+import React from "react";
+import { Card, CardContent } from "../../components/ui/card";
+import { Users, Map, QrCode, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 
-function AdminDashboard() {
-  const [rooms, setRooms] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const res = await axios.get('http://localhost:5000/api/rooms');
-        setRooms(res.data);
-      } catch (err) {
-        console.error("❌ Error fetching rooms:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRooms();
-  }, []);
+const Dashboard = () => {
+  const stats = [
+    { title: "Active Rooms", value: 12, icon: <Map className="w-6 h-6" /> },
+    { title: "Current Users", value: 256, icon: <Users className="w-6 h-6" /> },
+    { title: "QR Scans Today", value: 480, icon: <QrCode className="w-6 h-6" /> },
+    { title: "Settings", value: "Manage", icon: <Settings className="w-6 h-6" /> },
+  ];
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
-
-      {loading ? (
-        <p>Loading rooms...</p>
-      ) : rooms.length === 0 ? (
-        <>
-          <p>No rooms found.</p>
-          <pre className="text-sm text-gray-500 mt-4">
-            Debug: {JSON.stringify(rooms, null, 2)}
-          </pre>
-        </>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rooms.map((room) => (
-            <div
-              key={room._id}
-              className="rounded-lg p-4 shadow border"
-            >
-              <h2 className="text-xl font-semibold mb-1">
-                {room.building} - {room.roomNumber}
-              </h2>
-              <p>Capacity: {room.capacity}</p>
-              <p>Current: {room.currentCount}</p>
-
-              <div className="mt-3">
-                <h4 className="font-semibold mb-2">Scan QR to Enter</h4>
-                <QRCodeSVG
-                  value={`http://172.25.232.196:5173/scan/${room._id}`}
-                  size={128}
-                />
-              </div>
+    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {stats.map((stat, idx) => (
+        <Card
+          key={idx}
+          className="shadow-lg rounded-2xl hover:scale-105 transition-transform duration-200 cursor-pointer"
+        >
+          <CardContent className="flex items-center gap-4 p-6">
+            <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-3 rounded-xl text-white">
+              {stat.icon}
             </div>
-          ))}
-        </div>
-      )}
+            <div>
+              <h3 className="text-lg font-semibold">{stat.title}</h3>
+              <p className="text-2xl font-bold">{stat.value}</p>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
-}
+};
 
-export default AdminDashboard;
+export default Dashboard;

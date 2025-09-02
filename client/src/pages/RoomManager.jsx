@@ -1,114 +1,79 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Plus, Trash2 } from "lucide-react";
 
-const RoomManager = () => {
+function RoomManager() {
   const [rooms, setRooms] = useState([]);
-  const [newRoom, setNewRoom] = useState({
-    building: '',
-    floor: '',
-    roomNumber: '',
-    capacity: '',
-  });
-
-  const fetchRooms = async () => {
-    try {
-      const res = await axios.get('http://localhost:5000/api/rooms');
-      setRooms(res.data);
-    } catch (err) {
-      console.error('Error fetching rooms:', err);
-    }
-  };
+  const [newRoom, setNewRoom] = useState("");
 
   useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await axios.get("/api/rooms");
+        setRooms(res.data);
+      } catch (error) {
+        console.error("Error fetching rooms", error);
+      }
+    };
     fetchRooms();
   }, []);
 
-  const handleAddRoom = async () => {
+  const addRoom = async () => {
+    if (!newRoom.trim()) return;
     try {
-      const res = await axios.post('http://localhost:5000/api/rooms', newRoom);
+      const res = await axios.post("/api/rooms", { name: newRoom, capacity: 50 });
       setRooms([...rooms, res.data]);
-      setNewRoom({ building: '', floor: '', roomNumber: '', capacity: '' });
-      alert('Room added successfully!');
-    } catch (err) {
-      console.error('Error adding room:', err);
-      alert(err.response?.data?.error || 'Something went wrong while adding the room.');
+      setNewRoom("");
+    } catch (error) {
+      console.error("Error adding room", error);
     }
   };
 
-  const handleInputChange = (e) => {
-    setNewRoom({ ...newRoom, [e.target.name]: e.target.value });
+  const deleteRoom = async (id) => {
+    try {
+      await axios.delete(`/api/rooms/${id}`);
+      setRooms(rooms.filter((room) => room._id !== id));
+    } catch (error) {
+      console.error("Error deleting room", error);
+    }
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Room Manager</h2>
-
-      {/* Add Room Form */}
-      <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6">Room Manager</h1>
+      <div className="flex gap-3 mb-6">
         <input
           type="text"
-          name="building"
-          placeholder="Building"
-          value={newRoom.building}
-          onChange={handleInputChange}
-          className="border p-2 rounded"
-        />
-        <input
-          type="text"
-          name="floor"
-          placeholder="Floor"
-          value={newRoom.floor}
-          onChange={handleInputChange}
-          className="border p-2 rounded"
-        />
-        <input
-          type="text"
-          name="roomNumber"
-          placeholder="Room Number"
-          value={newRoom.roomNumber}
-          onChange={handleInputChange}
-          className="border p-2 rounded"
-        />
-        <input
-          type="number"
-          name="capacity"
-          placeholder="Capacity"
-          value={newRoom.capacity}
-          onChange={handleInputChange}
-          className="border p-2 rounded"
+          value={newRoom}
+          onChange={(e) => setNewRoom(e.target.value)}
+          placeholder="Enter room name"
+          className="px-4 py-2 border rounded-lg flex-1"
         />
         <button
-          onClick={handleAddRoom}
-          className="bg-blue-600 text-white rounded px-4 py-2"
+          onClick={addRoom}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
         >
-          Add Room
+          <Plus className="h-5 w-5" /> Add
         </button>
       </div>
-
-      {/* Existing Rooms */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {rooms.map((room) => {
-          const occupancy = room.currentCount / room.capacity;
-          let bgColor = 'bg-green-200';
-          if (occupancy >= 0.8 && occupancy <= 1) bgColor = 'bg-yellow-200';
-          if (occupancy > 1) bgColor = 'bg-red-200';
-
-          return (
-            <div
-              key={room._id}
-              className={`p-4 rounded shadow ${bgColor} flex flex-col gap-2`}
+      <ul className="space-y-3">
+        {rooms.map((room) => (
+          <li
+            key={room._id}
+            className="flex justify-between items-center bg-gray-100 p-3 rounded-lg shadow-sm"
+          >
+            <span>{room.name}</span>
+            <button
+              onClick={() => deleteRoom(room._id)}
+              className="text-red-500 hover:text-red-700 flex items-center gap-1"
             >
-              <div><strong>{room.building}</strong> - Floor {room.floor}</div>
-              <div>Room: {room.roomNumber}</div>
-              <div>Capacity: {room.capacity}</div>
-              <div>Current Count: {room.currentCount}</div>
-              {/* Optional edit/delete buttons can go here */}
-            </div>
-          );
-        })}
-      </div>
+              <Trash2 className="h-5 w-5" /> Delete
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
+}
 
 export default RoomManager;

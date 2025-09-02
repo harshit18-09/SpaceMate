@@ -1,45 +1,33 @@
+import React from "react";
+import Modal from "./ui/Modal";
+import Button from "./ui/Button";
+
 export default function ZoneModal({ zone, onClose }) {
+  const isOpen = Boolean(zone);
   if (!zone) return null;
 
+  const color =
+    zone.level <= 40 ? "bg-green-500" : zone.level <= 70 ? "bg-yellow-400" : "bg-red-500";
+
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0, left: 0,
-      width: '100vw',
-      height: '100vh',
-      background: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        background: '#fff',
-        padding: '2rem',
-        borderRadius: '12px',
-        minWidth: '320px',
-        textAlign: 'center',
-        boxShadow: '0 8px 20px rgba(0,0,0,0.2)',
-        position: 'relative'
-      }}>
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            border: 'none',
-            background: 'transparent',
-            fontSize: '1.2rem',
-            cursor: 'pointer'
-          }}
-        >
-          ✕
-        </button>
-        <h2 style={{ marginBottom: '1rem' }}>{zone.name}</h2>
-        <p><strong>{zone.level}%</strong> crowded</p>
-        <p>Status: {zone.level <= 40 ? "Low" : zone.level <= 70 ? "Moderate" : "High"}</p>
+    <Modal isOpen={isOpen} onClose={onClose} title={zone.name} size="md"
+      actions={
+        <Button variant="primary" onClick={onClose}>
+          Close
+        </Button>
+      }
+    >
+      <p className="text-sm text-gray-700 mb-3">
+        Current crowd level in <span className="font-medium">{zone.name}</span>.
+      </p>
+
+      <div className="w-full h-3 rounded-full bg-gray-200 overflow-hidden">
+        <div className={`h-full ${color}`} style={{ width: `${Math.min(zone.level, 100)}%` }} />
       </div>
-    </div>
+
+      <p className="mt-2 text-right text-xs text-gray-500">
+        {Math.min(zone.level, 100)}% full
+      </p>
+    </Modal>
   );
 }

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Layout from "./components/Layout";
+import Loader from "./components/ui/Loader";
 
 import AdminLogin from "./pages/AdminLogin";
 import UserLogin from "./pages/UserLogin";
@@ -14,34 +15,31 @@ function App() {
 
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
-    if (storedRole) {
-      setRole(storedRole);
-    }
+    if (storedRole) setRole(storedRole);
   }, []);
 
   return (
     <Layout>
-      <Routes>
-        <Route path="/admin/login" element={<AdminLogin setRole={setRole} />} />
-        <Route path="/user/login" element={<UserLogin setRole={setRole} />} />
+      <Suspense fallback={<Loader />}>
+        <Routes>
+          <Route path="/admin/login" element={<AdminLogin setRole={setRole} />} />
+          <Route path="/user/login" element={<UserLogin setRole={setRole} />} />
 
-        <Route
-          path="/admin/dashboard"
-          element={
-            role === "admin" ? <AdminDashboard /> : <Navigate to="/admin/login" />
-          }
-        />
-        <Route
-          path="/room-manager"
-          element={
-            role === "admin" ? <RoomManager /> : <Navigate to="/admin/login" />
-          }
-        />
+          <Route
+            path="/admin/dashboard"
+            element={role === "admin" ? <AdminDashboard /> : <Navigate to="/admin/login" />}
+          />
+          <Route
+            path="/room-manager"
+            element={role === "admin" ? <RoomManager /> : <Navigate to="/admin/login" />}
+          />
 
-        <Route path="/crowd" element={<CrowdPage />} />
-        <Route path="/scan/:roomId" element={<ScanRoom />} />
-        <Route path="*" element={<Navigate to="/user/login" />} />
-      </Routes>
+          <Route path="/crowd" element={<CrowdPage />} />
+          <Route path="/scan/:roomId" element={<ScanRoom />} />
+
+          <Route path="*" element={<Navigate to="/user/login" />} />
+        </Routes>
+      </Suspense>
     </Layout>
   );
 }
