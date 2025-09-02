@@ -10,7 +10,6 @@ function AdminDashboard() {
     const fetchRooms = async () => {
       try {
         const res = await axios.get('http://localhost:5000/api/rooms');
-        console.log("📦 Rooms fetched:", res.data);
         setRooms(res.data);
       } catch (err) {
         console.error("❌ Error fetching rooms:", err);

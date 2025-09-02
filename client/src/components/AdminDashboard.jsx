@@ -9,7 +9,6 @@ function AdminDashboard() {
     const fetchRooms = async () => {
       try {
         const response = await axios.get('http://172.25.209.204:5000/api/rooms');
-        console.log('Debug:', response.data);
         setRooms(response.data);
 
         const initialAdjust = {};

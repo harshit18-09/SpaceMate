@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react';
 import ZoneModal from '../components/ZoneModal';
-import './Map.css';
 
 const getColor = (level) => {
-  if (level <= 40) return 'green';
-  if (level <= 70) return 'orange';
-  return 'red';
+  if (level <= 40) return 'bg-green-300';
+  if (level <= 70) return 'bg-yellow-300';
+  return 'bg-red-300';
 };
 
 export default function Map() {
-  const [zones, setZones] = useState([]); // ⬅️ API data
-  const [selectedZone, setSelectedZone] = useState(null); // ⬅️ Modal state
+  const [zones, setZones] = useState([]);
+  const [selectedZone, setSelectedZone] = useState(null);
 
   useEffect(() => {
     fetch('http://localhost:5000/api/zones')
@@ -20,23 +19,18 @@ export default function Map() {
   }, []);
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Campus Map Overview</h2>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-        gap: '1rem',
-        marginTop: '2rem'
-      }}>
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">Campus Map Overview</h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {zones.map((zone) => (
           <div
             key={zone.id}
             onClick={() => setSelectedZone(zone)}
-            className="zone-card"
-            style={{ backgroundColor: getColor(zone.level) }}
+            className={`cursor-pointer rounded-lg p-4 shadow hover:scale-[1.02] transition ${getColor(zone.level)}`}
           >
-            <h3 style={{ margin: 0 }}>{zone.name}</h3>
-            <p style={{ margin: '0.5rem 0 0' }}>{zone.level}% crowded</p>
+            <h3 className="text-lg font-semibold">{zone.name}</h3>
+            <p className="text-sm mt-1">{zone.level}% crowded</p>
           </div>
         ))}
       </div>
@@ -45,3 +39,4 @@ export default function Map() {
     </div>
   );
 }
+
